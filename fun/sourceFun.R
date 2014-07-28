@@ -18,7 +18,7 @@ loadOrInst<-function(pack,...){
           return('package:ok')
   } else {
     message(paste('check',pack,'not ok. Try to install'))
-    install.packages(pack,character.only=T,...)
+    install.packages(pack,...)
     if(require(pack,character.only=T)){
     } else {
       stop(paste("Installation failed for",pack))

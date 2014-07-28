@@ -29,7 +29,7 @@ message('launching lebaMod daemon')
 timestamp()
 
 while(runDaemon){
-  conLogs<-file(logsFile)
+  conLogs<-file(logsFile,open='a')
   sink(conLogs, append=T,type='message')
   sink(conLogs, append=T, type='output')
   sourceFun('fun')
@@ -70,7 +70,7 @@ while(runDaemon){
       to <- paste0('<',e,'>')
       subject <- paste("LEBAMOD job",paste(jobs,collapse=','),"done")
       body <- list(
-        paste('Data available at http://129.194.83.239:3838/lebamod/'),
+        paste('Data available at http://sdm.unige.ch:3838/lebamod/'),
         mime_part(as.data.frame(summaryTable),
                   name=paste0('LebaModSummaryTable',paste(jobs,collapse='_')))
         )

@@ -12,19 +12,6 @@
 
 
 
-source('../data/config/configLebaMod.r')
-
-# set global variables
-spL<<-dbInfo$speciesList
-prL<<-dbInfo$predictorsList
-meL<<-dbInfo$methodList
-grL<<-dbInfo$predictorsQuant #quant=group..
-clL<<-names(dbInfo$clustersList)
-# range
-yearR<<-dbInfo$predictorsYearsRange
-demR<<-dbInfo$predictorsDemRange
-latR<<-c(dbInfo$predictorsSpatialRange@ymin,dbInfo$predictorsSpatialRange@ymax)
-lonR<<-c(dbInfo$predictorsSpatialRange@xmin,dbInfo$predictorsSpatialRange@xmax)
 
 paramList=list()
 jobTable=data.table()

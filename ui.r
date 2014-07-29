@@ -219,7 +219,7 @@ shinyUI( fluidPage(
        uiOutput('messageLebaModResult'),
        hr(),
 
-       h4('Model filter'),
+       h4('Filter available results'),
 
        htmlOutput('filterTss'),
        htmlOutput('filterSpecies'),
@@ -261,15 +261,17 @@ shinyUI( fluidPage(
       #                          #
       ############################
       mainPanel(tabsetPanel(
-        tabPanel('Jobs done',
+        tabPanel('Prediction preview',
 
          h4('Presence probabilities bivariate plot.'),
-         actionButton("plotSpVsVar", "Update plot"),
+         p('(based on filtered models)'),
+         actionButton("plotSpVsVar", "Plot time series"),
          downloadButton('downloadPlotPresVsYearLat', 'Download plot (lattice/rds)'),
          #downloadButton('downloadPlotPresVsYearPdf', 'Download predictions data (pdf)'),
          plotOutput("spVsVar"),
          hr(),
-         h4('Table of jobs available for analyse.'),
+         h4('Subset models available to plot and download'),
+         p('(based on filtered models)'),
          downloadButton('downloadModels', 'Download selected models (zip)'),
          downloadButton('downloadPred', 'Download predictions data (rds)'),
 

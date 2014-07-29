@@ -92,6 +92,7 @@ shinyUI( fluidPage(
        selected='',
        multiple=T
        ),
+      checkboxInput("selectAllSpecies","Select all species",FALSE),  
       condHelp(h="Slider 'Range of distinct presence sites' filters the range of distinct presence sites across whole period, for each species. A distinct site of presence is a unique coordinate for a given year. If multiple records are found with same coordinates and same year for a particular species, they are counted as one site."),
       sliderInput("speciesSitesRange","Range of distinct presence sites",
        min=10,
@@ -100,7 +101,6 @@ shinyUI( fluidPage(
        ticks=TRUE,
        step=1
        ),
-      checkboxInput("selectAllSpecies","Select all species",FALSE),
       hr(),
       h4('Pseudo-absence generator'),
       condHelp(h='Type of pseudo absence selection : to calibrate presence only model, we need to generate absences with a selection algoritm, e.g. random site sampling. The number of pseudo absence to generate depends of multiple criteria, e.g. type of model (regression/classification) or number of presences available. More informations about selection strategy in barbet2012, lobo2011 and elith2011. In this version of lebaMod, only random spatial sampling with fixed number or multiplicator of pseudo-absence are available. nPa= number of pseudo absence = fixed number, mPa: number of pseudo absence =multiplicator * presence'),

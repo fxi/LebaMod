@@ -17,19 +17,19 @@ initParamList <- function(varSelect=NULL,
 						  sendEmail=TRUE,
 						  email="-"
 						  ){
-  # initParam : collect and control values, set default, etc.. 
+  # initParam : collect and control values, set default. 
   # do not allow less than 3 predictors
   if(length(varSelect)<3)varSelect=NULL
   
   # if any null in environment, return null,else list.
-  
   checkEnv<-as.list(environment())
-  print(str(checkEnv))
+
   if(any(TRUE %in% lapply(checkEnv,is.null))){
     message('initParamList found nulls in args.')
     return(NULL)
   }else{
-
+    message('initParamList ok to set a new job. Content of input list: ')
+    print(str(checkEnv))
     
 	list(
 		 varSelect=as.list(varSelect[order(varSelect)]),
@@ -53,6 +53,8 @@ initParamList <- function(varSelect=NULL,
 
 
 setId <- function(dbOut,table){
+  # function setId : increment id based on rows count
+  # value : idMax+1 or 0 if no table found
 	require(RSQLite)
 	# check if db is available and contain models table
 	dbCon <- dbConnect(SQLite(),dbOut)
@@ -80,6 +82,7 @@ setId <- function(dbOut,table){
 
 
 getPaNum<-function(sp,dbInfo,nPa,mPa,paType){
+  # get number of pseudo absence, based on number of pa or multiplicator of pa
 	spDt <- data.table(dbInfo$speciesList)
 	setkey(spDt,sp)
 	dS <- spDt[sp]$nDistinctSite
@@ -91,7 +94,10 @@ getPaNum<-function(sp,dbInfo,nPa,mPa,paType){
 	return(as.integer(nPa))
 }
 
+
+
 getPrNum<-function(sp,dbInfo){
+  # get number of distinct site by species
 	spDt <- data.table(dbInfo$speciesList)
 	setkey(spDt,sp)
 	nPr<-spDt[sp]$nDistinctSite
@@ -101,12 +107,13 @@ getPrNum<-function(sp,dbInfo){
 
 
 initJobTable <- function(paramList,dbInfo,computeModels=F){
+  # convert parameters to data.table where each row represent a model parameters set
+  # value : a list of job to be evaluated
+  # to do : check why unlist is used here.
 	require(data.table)
   require(RSQLite)
   require(foreach)
 	require(digest)
-	# convert parameters to data.table where each row represent a model parameters set
-	# value : a list of job to be evaluated
 	lMet <- unlist(paramList$methodSelect)
 	lSp <- unlist(paramList$speciesSelect)
 	lSpDb <- unlist(dbInfo$speciesList)
@@ -118,8 +125,10 @@ initJobTable <- function(paramList,dbInfo,computeModels=F){
   paType<-paramList$pseudoAbsType
 
 	# test if species exists
-	if(!all(lSp %in% lSpDb)){stop("Error in set job. Selected species in parameters doesn't exists in data base.")}
-
+	if(!all(lSp %in% lSpDb)){
+    stop("Error in set job. Selected species in parameters doesn't exists in data base.")
+	}
+  # expand combinaison of species, method and group. Add predictors. Add others parameters. 
 	jobTable <- data.table(expand.grid(s=lSp,m=lMet,g=lGroup,stringsAsFactors=F),p=predictors)
 	jobTable[,nPa:=getPaNum(s,dbInfo,nPa,mPa,paType),by=s]
 	jobTable[,nPr:=getPrNum(s,dbInfo),by=s]
@@ -128,12 +137,12 @@ initJobTable <- function(paramList,dbInfo,computeModels=F){
   jobTable[,probHexRadius:=paramList$probHexRadius]
   jobTable[,email:=paramList$email]
   
-	#set runs. All parameters multiplied by number of runs, only runs change.
+	#set runs. All parameters multiplied by number of runs. Only runs change.
 	jobTable <- foreach(rn=1:nRuns,.combine='rbind')%do%{
 		assign(paste0('j',rn),jobTable[,r:=rn])
 	}
 
-	# check that we are in expected location and create directories
+	# check working path and create directories
 	#stopifnot(getwd()==dbInfo$projectLocal | getwd()==dbInfo$projectRemote) 
 	dir.create(dbInfo$pathList$models,recursive=T,showWarnings=F)
 	
@@ -148,12 +157,13 @@ initJobTable <- function(paramList,dbInfo,computeModels=F){
 
 
 writeJobTableDb<-function(jobTable, dbInfo){
+  # check for duplicate in finished and pending jobs.
+  
   require(RSQLite)
   require(data.table)
   dbOut<-dbInfo$pathList$dbOut
   dbCon <- dbConnect(SQLite(),dbOut)
-  # check for duplicate in finished and pending jobs.
-  # TODO : clean this. make a function ?
+
   idRunJob <- paste(unique(jobTable$idRun),collapse="','")
   
   if('jobsPending' %in% dbListTables(dbCon)){

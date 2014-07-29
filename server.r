@@ -553,18 +553,34 @@ shinyServer(function(input, output,session) {
           rangeX=input$longRange,
           rangeY=input$latRange,
           rangeDem =input$demRange,
-          rangeYear = input$yearRange)  
+          rangeYear = input$yearRange
+          )  
         
         
         form<-as.formula(paste0("medPres~",input$varPlotBy,"|idSpeciesString"))
         
-        plotSpVsVar<-xyplot(form,group=idMod,ppsv,col='black',type='l',alpha=0.4,main='Median of presence probabilities by years.')+layer(panel.smoother(x, y, method = "loess",span=1), style = 4)        
-      }else{
-        plotSpVsVar<-xyplot(x~y,data=data.frame(x=0,y=0),main='Press plot button')
-      
+      if(is.null(ppsv)){
+        emptyPlotText('[Nothing to plot. Please select at least one model]')  
+      }else{   
+        plotSpVsVar<-xyplot(
+          form,
+          group=idMod,
+          data=ppsv,
+          col='black',
+          type='l',
+          alpha=0.4,
+          main='Median of presence probabilities by years.')+layer(
+            panel.smoother(x, y, method = "loess",span=1), style = 4
+          ) 
+        print(plotSpVsVar)
       }
-      print(plotSpVsVar)
-   
+        
+       
+      }else{
+        emptyPlotText('[Press plot button]')   
+      }
+     
+      
     })
     
     

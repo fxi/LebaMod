@@ -176,8 +176,15 @@ presProbSpeciesByVar<-function(lebaEnsembleListSpecies,varBy='YYYY',rangeX,range
     }
     
     speciesData
-  }
+  }  
+}
+
+
+emptyPlotText<-function(infoText){
+  par(mar = c(0,0,0,0))
+  plot(c(0, 1), c(0, 1), ann = F, bty = 'n', type = 'n', xaxt = 'n', yaxt = 'n')
   
-  
+  text(x = 0.34, y = 0.9, paste(infoText), 
+       cex = 1.5, col = "black", family="serif", font=2, adj=0.5)
 }
 

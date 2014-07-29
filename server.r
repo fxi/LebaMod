@@ -337,7 +337,7 @@ shinyServer(function(input, output,session) {
   #
   ####################################################################
   
-
+  
   
   
   
@@ -371,256 +371,250 @@ shinyServer(function(input, output,session) {
     nMods<-dbGetQuery(dbCon,'SELECT COUNT(*) FROM models')
     messageLebaModResult(paste(nMods,' models found in data base. '))
     dbDisconnect(dbCon)
-  
-  output$filterSpecies <- renderUI({ 
-    selectInput("filterSpecies", "Species",
-                choices=unique(allModelTable$species),
-                selected='',
-                multiple=T
-    )
-  })
-  
-  output$filterPredictor <- renderUI({ 
-    predList<-sub("\\((.*?)\\)",'',unique(unlist(strsplit(allModelTable$prdLoCorr,','))))
-    selectInput("filterPredictor", "Predictors",
-                choices=predList,
-                selected=,
-                multiple=T
-    )
-  })
-  
-  output$filterMethod <- renderUI({ 
-    selectInput("filterMethod", "Methods",
-                choices=unique(allModelTable$method),
-                selected='',
-                multiple=T
-    )
-  })
-  output$filterGroup <- renderUI({ 
-    selectInput("filterGroup", "Groups",
-                choices=unique(allModelTable$group),
-                selected='',
-                multiple=T
-    )
-  })
-  
-  output$filterTss<-renderUI({
-    mn<-floor(min(allModelTable$tss)*100)/100
-    mx<-ceiling(max(allModelTable$tss)*100)/100
-    sliderInput('filterTss',label='TSS range',
-                min=mn,
-                max=mx,
-                step=0.01,
-                value=c(0.9,0.99))
-  })
-  
-  # predictor filter
-  output$filterDem<-renderUI({
-    sliderInput('demRange',label='Dem range',
-                min=min(demR),
-                max=max(demR),
-                step=10,
-                value=c(min(demR),max(demR)))
-  })
-  output$filterLong<-renderUI({
-    sliderInput(
-      'longRange',label='Longitude range',
-      min=min(lonR),
-      max=max(lonR),
-      step=1000,
-      value=c(min(lonR),max(lonR))
-    )
-  })
-  output$filterLat<-renderUI({
-    sliderInput(
-      'latRange',label='Latitude range',
-      min=min(latR),
-      max=max(latR),
-      step=1000,
-      value=c(min(latR),max(latR))
-    )
-  })
-  output$filterYear<-renderUI({
-    sliderInput(
-      'yearRange',label='Year range',
-      min=min(yearR),
-      max=max(yearR),
-      step=1,
-      value=c(min(yearR),max(yearR))
-    )
-  })
-  
-  
-  output$subModelTable<-renderTable({
-
-    subModelTable<<-filterResults(species=input$filterSpecies,
-                                  method=input$filterMethod,
-                                  group=input$filterGroup,
-                                  predictors=input$filterPredictor,
-                                  tss=input$filterTss,
-                                  idJob=input$filterJob,
-                                  idRun=input$filterRun,
-                                  email=input$filterEmail,
-                                  showFailed=input$showFailed,
-                                  dbOut=dbInfo$pathList$dbOut)
     
-    subModelTablePrint<-subset(subModelTable, select=c(
-      'id',
-      'idJob',
-      'idRun',
-      'species',
-      'method',
-      'group',
-      'tss',
-      'nPr',
-      'nPa',
-      'prdLoCorr',
-      'prdHiCorr',
-      'message')
+    output$filterSpecies <- renderUI({ 
+      selectInput("filterSpecies", "Species",
+                  choices=unique(allModelTable$species),
+                  selected='',
+                  multiple=T
       )
-  
- 
-
+    })
     
-    handleNullDataTable(subModelTablePrint)
-  },sanitize.text.function=formatCommasTable)
-  
-  #####################
-  #                   #
-  # DOWNLOAD MODELS   #
-  #                   #
-  #####################  
-  
-
-  
-  output$downloadModels <- downloadHandler(
+    output$filterPredictor <- renderUI({ 
+      predList<-sub("\\((.*?)\\)",'',unique(unlist(strsplit(allModelTable$prdLoCorr,','))))
+      selectInput("filterPredictor", "Predictors",
+                  choices=predList,
+                  selected=,
+                  multiple=T
+      )
+    })
     
-    filename = function() {
-      paste('lebaModels-', Sys.Date(), '.zip', sep='')
-    },
-    content = function(file) {
-      tmpFile<-tempfile(tempdir(),pattern='lebaModels',fileext='.zip')
-      modelsPaths<- c(file.path(dbInfo$pathList$models,subModelTable$fileName))
-      zip(zipfile=tmpFile,files=modelsPaths) 
-      file.rename(tmpFile, file)
-    },
-    contentType='application/zip'
-  )
-  
-  
-  
-  
-  output$downloadPred <- downloadHandler(
-    filename = function() {
-      paste('lebaPred-', Sys.Date(), '.rds', sep='')
-    },
-    content = function(file) {
-      lebaList<-getEnsembleListSpecies(subModelTable,dbInfo$pathList$models)
-      saveRDS(presProbSpecies(lebaList),file)
-    }
-  )
-  
-  
-  
-  
-  #####################
-  #                   #
-  # PLOT PROBS VS VAR #
-  #                   #
-  #####################
-  
-  
-  output$spVsVar<-renderPlot({
-    # avoid first incrementation of action button
-    if(input$plotSpVsVar>0){
-
-
-#       resultTableTest<-filterResults(species=c('Baetis alpinus','Alainites muticus'),
-#                                      dbOut=dbInfo$pathList$dbOut)
-#       
+    output$filterMethod <- renderUI({ 
+      selectInput("filterMethod", "Methods",
+                  choices=unique(allModelTable$method),
+                  selected='',
+                  multiple=T
+      )
+    })
+    output$filterGroup <- renderUI({ 
+      selectInput("filterGroup", "Groups",
+                  choices=unique(allModelTable$group),
+                  selected='',
+                  multiple=T
+      )
+    })
+    
+    output$filterTss<-renderUI({
+      mn<-floor(min(allModelTable$tss)*100)/100
+      mx<-ceiling(max(allModelTable$tss)*100)/100
+      sliderInput('filterTss',label='TSS range',
+                  min=mn,
+                  max=mx,
+                  step=0.01,
+                  value=c(0.9,0.99))
+    })
+    
+    # predictor filter
+    output$filterDem<-renderUI({
+      sliderInput('demRange',label='Dem range',
+                  min=min(demR),
+                  max=max(demR),
+                  step=10,
+                  value=c(min(demR),max(demR)))
+    })
+    output$filterLong<-renderUI({
+      sliderInput(
+        'longRange',label='Longitude range',
+        min=min(lonR),
+        max=max(lonR),
+        step=1000,
+        value=c(min(lonR),max(lonR))
+      )
+    })
+    output$filterLat<-renderUI({
+      sliderInput(
+        'latRange',label='Latitude range',
+        min=min(latR),
+        max=max(latR),
+        step=1000,
+        value=c(min(latR),max(latR))
+      )
+    })
+    output$filterYear<-renderUI({
+      sliderInput(
+        'yearRange',label='Year range',
+        min=min(yearR),
+        max=max(yearR),
+        step=1,
+        value=c(min(yearR),max(yearR))
+      )
+    })
+    
+    
+    output$subModelTable<-renderTable({
       
-      elr<-getEnsembleListSpecies(resultsTable=subModelTable,
-#                                dbOut=dbInfo$pathList$dbOut,
-                               modelsLoc=dbInfo$pathList$models)
+      subModelTable<<-filterResults(species=input$filterSpecies,
+                                    method=input$filterMethod,
+                                    group=input$filterGroup,
+                                    predictors=input$filterPredictor,
+                                    tss=input$filterTss,
+                                    idJob=input$filterJob,
+                                    idRun=input$filterRun,
+                                    email=input$filterEmail,
+                                    showFailed=input$showFailed,
+                                    dbOut=dbInfo$pathList$dbOut)
       
-
-listLength<-length(elr)
-if(listLength>100){
-  messageLebaModResult('WARNING : more than 100 models selected, please be patient.')
-}
-
-
-
-      ppsv<-presProbSpeciesByVar(lebaEnsembleListSpecies=elr,
-                                 varBy=input$varPlotBy,
-                                 rangeX=input$longRange,
-                                 rangeY=input$latRange,
-                                 rangeDem =input$demRange,
-                                 rangeYear = input$yearRange)  
+      subModelTablePrint<-subset(subModelTable, select=c(
+        'id',
+        'idJob',
+        'idRun',
+        'species',
+        'method',
+        'group',
+        'tss',
+        'nPr',
+        'nPa',
+        'prdLoCorr',
+        'prdHiCorr',
+        'message')
+      )
       
       
-      form<-as.formula(paste0("medPres~",input$varPlotBy,"|idSpeciesString"))
-
-      plotSpVsVar<-xyplot(form,group=idMod,ppsv,col='black',type='l',alpha=0.4)+
-        layer(panel.smoother(x, y, method = "loess",span=1), style = 4)
-print(plotSpVsVar)
       
-    }else{
-      plotSpVsVar<-xyplot(x~y,data=data.frame(x=0,y=0))
+      
+      handleNullDataTable(subModelTablePrint)
+    },sanitize.text.function=formatCommasTable)
+    
+    #####################
+    #                   #
+    # DOWNLOAD MODELS   #
+    #                   #
+    #####################  
+    
+    
+    
+    output$downloadModels <- downloadHandler(
+      
+      filename = function() {
+        paste('lebaModels-', Sys.Date(), '.zip', sep='')
+      },
+      content = function(file) {
+        tmpFile<-tempfile(tempdir(),pattern='lebaModels',fileext='.zip')
+        modelsPaths<- c(file.path(dbInfo$pathList$models,subModelTable$fileName))
+        zip(zipfile=tmpFile,files=modelsPaths) 
+        file.rename(tmpFile, file)
+      },
+      contentType='application/zip'
+    )
+    
+    
+    
+    
+    output$downloadPred <- downloadHandler(
+      filename = function() {
+        paste('lebaPred-', Sys.Date(), '.rds', sep='')
+      },
+      content = function(file) {
+        lebaList<-getEnsembleListSpecies(subModelTable,dbInfo$pathList$models)
+        saveRDS(presProbSpecies(lebaList),file)
+      }
+    )
+    
+    
+    
+    
+    #####################
+    #                   #
+    # PLOT PROBS VS VAR #
+    #                   #
+    #####################
+    
+    
+    output$spVsVar<-renderPlot({
+      # avoid first incrementation of action button
+      if(input$plotSpVsVar>0){
+        elr<-getEnsembleListSpecies(
+          resultsTable=subModelTable,
+          modelsLoc=dbInfo$pathList$models
+        )
+        
+        
+        listLength<-length(elr)
+        
+        if(listLength>100){
+          messageLebaModResult('WARNING : more than 100 models selected, please be patient.')
+        }
+        
+        
+        
+        ppsv<-presProbSpeciesByVar(
+          lebaEnsembleListSpecies=elr,
+          varBy=input$varPlotBy,
+          rangeX=input$longRange,
+          rangeY=input$latRange,
+          rangeDem =input$demRange,
+          rangeYear = input$yearRange)  
+        
+        
+        form<-as.formula(paste0("medPres~",input$varPlotBy,"|idSpeciesString"))
+        
+        plotSpVsVar<-xyplot(form,group=idMod,ppsv,col='black',type='l',alpha=0.4,main='Median of presence probabilities by years.')+layer(panel.smoother(x, y, method = "loess",span=1), style = 4)        
+      }else{
+        plotSpVsVar<-xyplot(x~y,data=data.frame(x=0,y=0),main='Press plot button')
+      
+      }
       print(plotSpVsVar)
-    }
-
-
-  })
-
-
-output$downloadPlotPresVsYearLat <- downloadHandler(
-  filename = function() {
-    paste('lebaPlotLattice-', Sys.Date(), '.rds', sep='')
-  },
-  content = function(file) {
-    elr<-getEnsembleListSpecies(resultsTable=subModelTable,
-                                #                                dbOut=dbInfo$pathList$dbOut,
-                                modelsLoc=dbInfo$pathList$models)
+   
+    })
     
     
-    ppsv<-presProbSpeciesByVar(lebaEnsembleListSpecies=elr,
-                               varBy=input$varPlotBy,
-                               rangeX=input$longRange,
-                               rangeY=input$latRange,
-                               rangeDem =input$demRange,
-                               rangeYear = input$yearRange)  
+    output$downloadPlotPresVsYearLat <- downloadHandler(
+      filename = function() {
+        paste('lebaPlotLattice-', Sys.Date(), '.rds', sep='')
+      },
+      content = function(file) {
+        elr<-getEnsembleListSpecies(resultsTable=subModelTable,
+                                    #                                dbOut=dbInfo$pathList$dbOut,
+                                    modelsLoc=dbInfo$pathList$models)
+        
+        
+        ppsv<-presProbSpeciesByVar(lebaEnsembleListSpecies=elr,
+                                   varBy=input$varPlotBy,
+                                   rangeX=input$longRange,
+                                   rangeY=input$latRange,
+                                   rangeDem =input$demRange,
+                                   rangeYear = input$yearRange)  
+        
+        
+        form<-as.formula(paste0("medPres~",input$varPlotBy,"|idSpeciesString"))
+        
+        plotSpVsVar<-xyplot(form,group=idMod,ppsv,col='black',type='l',alpha=0.4)+
+          layer(panel.smoother(x, y, method = "loess",span=1), style = 4)
+        saveRDS(plotSpVsVar,file)
+      }
+    )
+    
+    output$RsessionLocal<-renderPrint({sessionInfo()})
     
     
-    form<-as.formula(paste0("medPres~",input$varPlotBy,"|idSpeciesString"))
+    output$RsessionRemote<-renderPrint({
+      clDat<-dbInfo$clustersList[[input$selectRemote]]
+      clDat<-dbInfo$clustersList[['climdal']]
+      
+      tmpF<-tempfile('remoteSessionInfo',tempdir(),fileext='.rds')
+      
+      cmdScp<-paste0('scp ',clDat$user,'@',clDat$hostName, ":", 
+                     clDat$pathProject, '/data/logs/sessionInfo.rds ',
+                     tmpF)
+      system(cmdScp)
+      
+      rSessionRemote<-readRDS(tmpF)
+      rSessionRemote
+    })
     
-    plotSpVsVar<-xyplot(form,group=idMod,ppsv,col='black',type='l',alpha=0.4)+
-      layer(panel.smoother(x, y, method = "loess",span=1), style = 4)
-    saveRDS(plotSpVsVar,file)
+    
   }
-)
-
-output$RsessionLocal<-renderPrint({sessionInfo()})
-
-
-output$RsessionRemote<-renderPrint({
-  clDat<-dbInfo$clustersList[[input$selectRemote]]
-  clDat<-dbInfo$clustersList[['climdal']]
   
-  tmpF<-tempfile('remoteSessionInfo',tempdir(),fileext='.rds')
-  
-  cmdScp<-paste0('scp ',clDat$user,'@',clDat$hostName, ":", 
-                 clDat$pathProject, '/data/logs/sessionInfo.rds ',
-                 tmpF)
-  system(cmdScp)
-  
-  rSessionRemote<-readRDS(tmpF)
-  rSessionRemote
-  })
-
-
-}
-
   
 })
 

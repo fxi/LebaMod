@@ -261,15 +261,11 @@ shinyUI( fluidPage(
       #                          #
       ############################
       mainPanel(tabsetPanel(
-        tabPanel('Prediction preview',
+        tabPanel('Models summary',
+      
 
-         h4('Presence probabilities bivariate plot.'),
-         p('(based on filtered models)'),
-         actionButton("plotSpVsVar", "Plot time series"),
-         downloadButton('downloadPlotPresVsYearLat', 'Download plot (lattice/rds)'),
-         #downloadButton('downloadPlotPresVsYearPdf', 'Download predictions data (pdf)'),
-         plotOutput("spVsVar"),
-         hr(),
+       
+         
          h4('Subset models available to plot and download'),
          p('(based on filtered models)'),
          downloadButton('downloadModels', 'Download selected models (zip)'),
@@ -278,6 +274,16 @@ shinyUI( fluidPage(
          checkboxInput("showFailed","Show failed",FALSE),
          tableOutput('subModelTable')
          ),
+        tabPanel('Plot prediction times series',
+                 h4('Presence probabilities bivariate plot.'),
+                 p('(based on filtered models. Could take some time, be patient)'),
+                 actionButton("plotSpVsVar", "Plot"),
+                 downloadButton('downloadPlotPresVsYearLat', 'Download plot (lattice/rds)'),
+                 #downloadButton('downloadPlotPresVsYearPdf', 'Download predictions data (pdf)'),
+                 plotOutput("spVsVar"),
+                 hr()
+                 ),
+        
         tabPanel('Animated map by model',
          actionButton("animMap", "Animated map")
          )

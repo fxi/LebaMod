@@ -11,7 +11,7 @@ handleNullDataTable<-function(dataTable){
     dataTable<-data.table(data='noData')
   }else{
     if(nrow(dataTable)<1  & length(nm)>1){  
-      dataTable<-rbind(dataTable,t(rep('-',length(names(dataTable)))))
+      dataTable<-rbind(dataTable,data.table(t(rep('-',length(names(dataTable))))))
       names(dataTable) <-nm
     }else{
       dataTable

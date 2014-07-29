@@ -25,3 +25,8 @@ yearR<-dbInfo$predictorsYearsRange
 demR<-dbInfo$predictorsDemRange
 latR<-c(dbInfo$predictorsSpatialRange@ymin,dbInfo$predictorsSpatialRange@ymax)
 lonR<-c(dbInfo$predictorsSpatialRange@xmin,dbInfo$predictorsSpatialRange@xmax)
+
+# set DEFAULT list and data.table
+paramList=list()
+jobTable=data.table()
+subModelTable=data.table()

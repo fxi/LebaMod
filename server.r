@@ -13,9 +13,7 @@
 
 
 
-paramList=list()
-jobTable=data.table()
-subModelTable=data.table()
+
 
 shinyServer(function(input, output,session) {
   
@@ -478,7 +476,8 @@ shinyServer(function(input, output,session) {
       'nPa',
       'prdLoCorr',
       'prdHiCorr',
-      'message'))
+      'message')
+      )
   
  
 

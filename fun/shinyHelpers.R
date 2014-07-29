@@ -10,11 +10,14 @@ handleNullDataTable<-function(dataTable){
   if(length(nm)<1 | !any(c('data.table','data.frame','matrix','vector') %in% class(dataTable))){
     dataTable<-data.table(data='noData')
   }else{
-    if(nrow(dataTable)<1  & length(nm)>1){  
-      dataTable<-rbind(dataTable,data.table(t(rep('-',length(names(dataTable))))))
+    if(nrow(dataTable)<1  & length(nm)>1){
+      lDt<-length(names(dataTable))
+      dataTable<-rbind(
+        dataTable,
+        as.list(rep('-',lDt))
+        )
       names(dataTable) <-nm
-    }else{
-      dataTable
+      print(dataTable)
     }
   }
   return(dataTable)
